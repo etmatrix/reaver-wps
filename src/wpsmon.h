@@ -97,6 +97,9 @@ struct global_variables
 	unsigned char **bssids;
 } wpsmon;
 
+char *asRespType[] = {"ENROLLEE_INFO","ENROLLEE","REGISTRAR","AP"};
+char *asState[] = {"","NOT_CONFIGURED","CONFIGURED"};
+
 void monitor(char *bssid, int passive, int source, int channel, int mode,int verbose);
 void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *target, int passive, int mode, int source,int verbose);
 void send_probe_request(unsigned char *bssid, char *essid);

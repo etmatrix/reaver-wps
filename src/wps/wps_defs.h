@@ -291,9 +291,6 @@ enum wps_response_type {
 	WPS_RESP_AP = 3
 };
 
-char *asRespType[] = {"ENROLLEE_INFO","ENROLLEE","REGISTRAR","AP"};
-char *asState[] = {"","NOT_CONFIGURED","CONFIGURED"};
-
 /* Walk Time for push button configuration (in seconds) */
 #define WPS_PBC_WALK_TIME 120
 
