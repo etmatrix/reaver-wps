@@ -41,7 +41,7 @@ int process_arguments(int argc, char **argv)
 	int long_opt_index = 0;
 	char bssid[MAC_ADDR_LEN] = { 0 };
 	char mac[MAC_ADDR_LEN] = { 0 };
-	char *short_options = "b:e:m:i:t:d:c:T:x:r:g:l:o:p:s:C:aA5ELfnqvDShwN";
+	char *short_options = "b:e:m:i:t:d:c:T:x:r:g:l:o:p:s:C:aA5ELfnqvDShwNz";
 	struct option long_options[] = {
 		{ "interface", required_argument, NULL, 'i' },
 		{ "bssid", required_argument, NULL, 'b' },
@@ -72,6 +72,7 @@ int process_arguments(int argc, char **argv)
 		{ "quiet", no_argument, NULL, 'q' },
 		{ "verbose", no_argument, NULL, 'v' },
 		{ "win7", no_argument, NULL, 'w' },
+		{ "no-checksum", no_argument, NULL, 'z' },
 		{ "help", no_argument, NULL, 'h' },
 		{ 0, 0, 0, 0 }
 	};
@@ -170,6 +171,9 @@ int process_arguments(int argc, char **argv)
 			case 'w':
 				set_win7_compat(1);
 				break;
+			case 'z':
+				set_no_checksum(1);
+				break;
 			case 'N':
 				set_oo_send_nack(0);
 				break;
@@ -190,7 +194,7 @@ int process_arguments(int argc, char **argv)
 void init_default_settings(void)
 {
 	set_log_file(stdout);
-	set_max_pin_attempts(P1_SIZE + P2_SIZE);
+	set_max_pin_attempts(P1_SIZE + (!get_no_checksum() ? P2_SIZE : P1_SIZE));
         set_delay(DEFAULT_DELAY);
         set_lock_delay(DEFAULT_LOCK_DELAY);
         set_debug(INFO);
@@ -198,6 +202,7 @@ void init_default_settings(void)
         set_timeout_is_nack(1);
 	set_oo_send_nack(1);
         set_wifi_band(BG_BAND);
+	set_no_checksum(0);
 }
 
 /* Parses the recurring delay optarg */

@@ -56,7 +56,7 @@ void globule_deinit()
                 {
                         if(globule->p1[i]) free(globule->p1[i]);
                 }
-                for(i=0; i<P2_SIZE; i++)
+                for(i=0; i<(!get_no_checksum() ? P2_SIZE : P1_SIZE); i++)
                 {
                         if(globule->p2[i]) free(globule->p2[i]);
                 }
@@ -117,7 +117,7 @@ int get_p1_index()
 
 void set_p2_index(int index)
 {
-	if(index < P2_SIZE)
+	if(index < (!get_no_checksum() ? P2_SIZE : P1_SIZE))
 	{
 		globule->p2_index = index;
 	}
@@ -145,14 +145,14 @@ char *get_p1(int index)
 
 void set_p2(int index, char *value)
 {
-	if(index < P2_SIZE)
+	if(index < (!get_no_checksum() ? P2_SIZE : P1_SIZE))
 	{
 		globule->p2[index] = strdup(value);
 	}
 }
 char *get_p2(int index)
 {
-	if(index < P2_SIZE)
+	if(index < (!get_no_checksum() ? P2_SIZE : P1_SIZE))
 	{
 		return globule->p2[index];
 	}
@@ -482,6 +482,16 @@ void set_win7_compat(int value)
 int get_win7_compat(void)
 {
 	return globule->win7_compat;
+}
+
+void set_no_checksum(int value)
+{
+        globule->no_checksum = value;
+}
+
+int get_no_checksum(void)
+{
+        return globule->no_checksum;
 }
 
 void set_dh_small(int value)

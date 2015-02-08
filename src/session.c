@@ -123,14 +123,14 @@ int restore_session()
 							}
 
 							/* Read in all p2 values */
-							for(i=0; i<P2_SIZE; i++)
+							for(i=0; i<(!get_no_checksum() ? P2_SIZE : P1_SIZE); i++)
 							{
 								memset((char *) &temp, 0, P1_READ_LEN);
 
-								if(fgets((char *) &temp, P2_READ_LEN, fp) != NULL)
+								if(fgets((char *) &temp, (!get_no_checksum() ? P2_READ_LEN : P1_READ_LEN), fp) != NULL)
 								{
 									/* NULL out the new line character */
-									temp[P2_STR_LEN] = 0;
+									temp[(!get_no_checksum() ? P2_STR_LEN : P1_STR_LEN)] = 0;
 									set_p2(i, (char *) &temp);
 								}
 							}
@@ -246,7 +246,7 @@ int save_session()
 							}
 
 							/* Save all the p2 values */
-							for(i=0; i<P2_SIZE; i++)
+							for(i=0; i<(!get_no_checksum() ? P2_SIZE : P1_SIZE); i++)
 							{
 								fwrite(get_p2(i), 1, strlen(get_p2(i)), fp);
 								fwrite("\n", 1, 1, fp);
@@ -255,7 +255,7 @@ int save_session()
 							/* If we have the WPA key, then we've exhausted all attempts, and the UI should reflect that */
 							if(wpa_key && strlen(wpa_key) > 0)
 							{
-								attempts = P1_SIZE + P2_SIZE;
+								attempts = P1_SIZE + (!get_no_checksum() ? P2_SIZE : P1_SIZE);
 							}
 							else
 							{

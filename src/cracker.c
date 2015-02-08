@@ -308,10 +308,10 @@ void display_status(float pin_count, time_t start_time)
 	}
 	else if(get_key_status() == KEY_DONE)
 	{
-		attempts = P1_SIZE + P2_SIZE;
+		attempts = P1_SIZE + (!get_no_checksum() ? P2_SIZE : P1_SIZE);
 	}
 
-	percentage = (float) (((float) attempts / (P1_SIZE + P2_SIZE)) * 100);
+	percentage = (float) (((float) attempts / (P1_SIZE + (!get_no_checksum() ? P2_SIZE : P1_SIZE))) * 100);
 	
 	now = time(NULL);
 	diff = now - start_time;

@@ -46,7 +46,7 @@ struct globals
 
         char *p1[P1_SIZE];              /* Array of all possible values for the firt half of the pin */
 
-        char *p2[P2_SIZE];              /* Array of all possible values for the second half of the pin */
+        char *p2[P1_SIZE];              /* Array of all possible values for the second half of the pin */
 
 	char *static_p1;		/* Static P1, as supplied by the user */
 	
@@ -138,6 +138,7 @@ struct globals
 					 * wpa_supplicant's wps_data structure, needed for almost all wpa_supplicant
                                          * function calls.
                                          */
+        uint8_t no_checksum;            /* Disable checksum generation and use 4 pin number in second part */
 } *globule;
 
 int globule_init();
@@ -238,5 +239,7 @@ void set_exec_string(char *string);
 char *get_exec_string(void);
 void set_oo_send_nack(int value);
 int get_oo_send_nack(void);
+void set_no_checksum(int value);
+int get_no_checksum(void);
 
 #endif

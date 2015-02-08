@@ -43,16 +43,25 @@ char *build_wps_pin()
         key = malloc(pin_len);
         if(pin && key)
         {
-                memset(key, 0, pin_len);
                 memset(pin, 0, pin_len);
 
-                /* Generate a 7-digit pin from the given key index values */
-                snprintf(key, pin_len, "%s%s", get_p1(get_p1_index()), get_p2(get_p2_index()));
+		if(!get_no_checksum())
+		{
+                	memset(key, 0, pin_len);
 
-                /* Generate and append the pin checksum digit */
-                snprintf(pin, pin_len, "%s%d", key, wps_pin_checksum(atoi(key)));
+	                /* Generate a 7-digit pin from the given key index values */
+	                snprintf(key, pin_len, "%s%s", get_p1(get_p1_index()), get_p2(get_p2_index()));
 
-                free(key);
+	                /* Generate and append the pin checksum digit */
+	                snprintf(pin, pin_len, "%s%d", key, wps_pin_checksum(atoi(key)));
+		}
+		else
+		{
+	                /* Generate a 8-digit pin from the given key index values */
+	                snprintf(pin, pin_len, "%s%s", get_p1(get_p1_index()), get_p2(get_p2_index()));
+		}
+
+               	free(key);
         }
 
         return pin;
@@ -132,21 +141,21 @@ void generate_pins()
 		 * Look for P2 keys statically marked as priority. These are pins that have been 
 		 * reported to be commonly used on some APs and should be tried first. 
 		 */
-		for(index=0, i=0; i<P2_SIZE; i++)
+		for(index=0, i=0; i<(!get_no_checksum() ? P2_SIZE : P1_SIZE); i++)
 		{
-			if(k2[i].priority == 1)
+			if((!get_no_checksum() ? k2[i].priority : k2_long[i].priority) == 1)
 			{
-				set_p2(index, k2[i].key);
+				set_p2(index, (!get_no_checksum() ? k2[i].key : k2_long[i].key));
 				index++;
 			}
 		}
 
 		/* Randomize the rest of the P2 keys */
-        	for(i=0; index < P2_SIZE; i++)
+        	for(i=0; index < (!get_no_checksum() ? P2_SIZE : P1_SIZE); i++)
         	{
-                	if(!k2[i].priority)
+                	if(!(!get_no_checksum() ? k2[i].priority : k2_long[i].priority))
                 	{
-                	        set_p2(index, k2[i].key);
+				set_p2(index, (!get_no_checksum() ? k2[i].key : k2_long[i].key));
                 	        index++;
 			}
                 }
@@ -154,7 +163,7 @@ void generate_pins()
 	else
 	{
 		/* If the second half of the pin was specified by the user, only use that */
-		for(index=0; index<P2_SIZE; index++)
+		for(index=0; index<(!get_no_checksum() ? P2_SIZE : P1_SIZE); index++)
 		{
 			set_p2(index, get_static_p2());
 		}
