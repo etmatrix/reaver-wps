@@ -62,7 +62,7 @@ int restore_session()
 		memset(file, 0, FILENAME_MAX);
 
 		bssid = mac2str(get_bssid(), '\0');
-		snprintf(file, FILENAME_MAX, "%s/%s.%s", CONF_DIR, bssid, CONF_EXT);
+		snprintf(file, FILENAME_MAX, "%s.%s", bssid, CONF_EXT);
 		free(bssid);
 	}
 
@@ -199,18 +199,8 @@ int save_session()
 		}
 		else
 		{	
-			/* 
-			 * If the configuration directory exists, save the session file there; else, save it to the 
-			 * current working directory.
-			 */
-			if(configuration_directory_exists())
-			{
-        			snprintf((char *) &file_name, FILENAME_MAX, "%s/%s.%s", CONF_DIR, bssid, CONF_EXT);
-			}
-			else
-			{
-				snprintf((char *) &file_name, FILENAME_MAX, "%s.%s", bssid, CONF_EXT);
-			}
+			/* save session to the current directory */
+			snprintf((char *) &file_name, FILENAME_MAX, "%s.%s", bssid, CONF_EXT);
 		}
 
 		/* Don't bother saving anything if nothing has been done */
