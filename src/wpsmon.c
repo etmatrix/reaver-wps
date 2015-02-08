@@ -262,8 +262,8 @@ void monitor(char *bssid, int passive, int source, int channel, int mode)
 
 	if(!header_printed)
 	{
-		cprintf(INFO, "BSSID                  Channel       RSSI       WPS Version       WPS Locked        ESSID\n");
-		cprintf(INFO, "---------------------------------------------------------------------------------------------------------------\n");
+		cprintf(INFO, "BSSID              Channel  RSSI  WPS Version  WPS Locked  ESSID\n");
+		cprintf(INFO, "--------------------------------------------------------------------------------------\n");
 		header_printed = 1;
 	}
 
@@ -360,7 +360,7 @@ void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *
 							break;
 					}
 
-					cprintf(INFO, "%17s      %2d            %.2d        %d.%d               %s               %s\n", bssid, channel, rssi, (wps->version >> 4), (wps->version & 0x0F), lock_display, ssid);
+					cprintf(INFO, "%17s    %2d       %.2d   %d.%d          %s         %s\n", bssid, channel, rssi, (wps->version >> 4), (wps->version & 0x0F), lock_display, ssid);
 				}
 
 				if(probe_sent)
