@@ -125,23 +125,19 @@ int parse_wps_tag(const u_char *tags, size_t len, struct libwps_data *wps)
 						ptr = wps->uuid;
 						break;
 					case SERIAL:
-						src = hex2str(el, el_len);
 						ptr = wps->serial;
 						break;
 					case SELECTED_REGISTRAR:
-						src = hex2str(el, el_len);
-						ptr = wps->selected_registrar;
+						wps->selected_registrar = (uint8_t) el[0];
 						break;
 					case RESPONSE_TYPE:
-						src = hex2str(el, el_len);
-						ptr = wps->response_type;
+						wps->response_type = (uint8_t) el[0];
 						break;
 					case PRIMARY_DEVICE_TYPE:
 						src = hex2str(el, el_len);
 						ptr = wps->primary_device_type;
 						break;
 					case CONFIG_METHODS:
-						src = hex2str(el, el_len);
 						ptr = wps->config_methods;
 						break;
 					case RF_BANDS:

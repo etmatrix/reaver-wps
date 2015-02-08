@@ -39,10 +39,10 @@ struct libwps_data
         char ssid[LIBWPS_MAX_STR_LEN];
         char uuid[LIBWPS_MAX_STR_LEN];
         char serial[LIBWPS_MAX_STR_LEN];
-        char selected_registrar[LIBWPS_MAX_STR_LEN];
-        char response_type[LIBWPS_MAX_STR_LEN];
+        uint8_t selected_registrar;
+        uint8_t response_type;
         char primary_device_type[LIBWPS_MAX_STR_LEN];
-        char config_methods[LIBWPS_MAX_STR_LEN];
+        uint8_t config_methods[LIBWPS_MAX_STR_LEN];
         char rf_bands[LIBWPS_MAX_STR_LEN];
         char os_version[LIBWPS_MAX_STR_LEN];
 };

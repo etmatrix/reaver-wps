@@ -206,11 +206,15 @@ enum wps_config_error {
 #define WPS_CONFIG_ETHERNET 0x0002
 #define WPS_CONFIG_LABEL 0x0004
 #define WPS_CONFIG_DISPLAY 0x0008
+#define WPS_CONFIG_VIRT_DISPLAY 0x20
+#define WPS_CONFIG_PHYS_DISPLAY 0x40
 #define WPS_CONFIG_EXT_NFC_TOKEN 0x0010
 #define WPS_CONFIG_INT_NFC_TOKEN 0x0020
 #define WPS_CONFIG_NFC_INTERFACE 0x0040
 #define WPS_CONFIG_PUSHBUTTON 0x0080
-#define WPS_CONFIG_KEYPAD 0x0100
+#define WPS_CONFIG_VIRT_PUSHBUTTON 0x02
+#define WPS_CONFIG_PHYS_PUSHBUTTON 0x04
+#define WPS_CONFIG_KEYPAD 0x01
 
 /* Connection Type Flags */
 #define WPS_CONN_ESS 0x01
@@ -286,6 +290,9 @@ enum wps_response_type {
 	WPS_RESP_REGISTRAR = 2,
 	WPS_RESP_AP = 3
 };
+
+char *asRespType[] = {"ENROLLEE_INFO","ENROLLEE","REGISTRAR","AP"};
+char *asState[] = {"","NOT_CONFIGURED","CONFIGURED"};
 
 /* Walk Time for push button configuration (in seconds) */
 #define WPS_PBC_WALK_TIME 120

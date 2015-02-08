@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
 {
 	int c = 0;
 	FILE *fp = NULL;
-	int long_opt_index = 0, i = 0, channel = 0, passive = 0, mode = 0;
+	int long_opt_index = 0, i = 0, channel = 0, passive = 0, mode = 0, verbose = 0;
 	int source = INTERFACE, ret_val = EXIT_FAILURE;
 	struct bpf_program bpf = { 0 };
 	char *out_file = NULL, *last_optarg = NULL, *target = NULL, *bssid = NULL;
-	char *short_options = "i:c:n:o:b:5sfuCDh";
+	char *short_options = "i:c:n:o:b:5sfuCDhv";
         struct option long_options[] = {
 		{ "bssid", required_argument, NULL, 'b' },
                 { "interface", required_argument, NULL, 'i' },
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 		{ "5ghz", no_argument, NULL, '5' },
 		{ "scan", no_argument, NULL, 's' },
 		{ "survey", no_argument, NULL, 'u' },
+		{ "verbose", no_argument, NULL, 'v' },
                 { "help", no_argument, NULL, 'h' },
                 { 0, 0, 0, 0 }
         };
@@ -108,6 +109,9 @@ int main(int argc, char *argv[])
 				break;
 			case 'D':
 				daemonize();
+				break;
+			case 'v':
+				verbose = 1;
 				break;
 			default:
 				usage(argv[0]);
@@ -212,7 +216,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Do it. */
-		monitor(bssid, passive, source, channel, mode);
+		monitor(bssid, passive, source, channel, mode, verbose);
 		printf("\n");
 	}
 
@@ -228,7 +232,7 @@ end:
 }
 
 /* Monitors an interface (or capture file) for WPS data in beacon packets or probe responses */
-void monitor(char *bssid, int passive, int source, int channel, int mode)
+void monitor(char *bssid, int passive, int source, int channel, int mode, int verbose)
 {
 	struct sigaction act;
 	struct itimerval timer;
@@ -269,14 +273,14 @@ void monitor(char *bssid, int passive, int source, int channel, int mode)
 
 	while((packet = next_packet(&header)))
 	{
-		parse_wps_settings(packet, &header, bssid, passive, mode, source);
+		parse_wps_settings(packet, &header, bssid, passive, mode, source, verbose);
 		memset((void *) packet, 0, header.len);
 	}
 
 	return;
 }
 
-void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *target, int passive, int mode, int source)
+void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *target, int passive, int mode, int source, int verbose)
 {
 	struct radio_tap_header *rt_header = NULL;
 	struct dot11_frame_header *frame_header = NULL;
@@ -375,6 +379,17 @@ void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *
 				if(!wps_parsed || fsub_type == __cpu_to_le16(IEEE80211_STYPE_PROBE_RESP))
 				{
 					mark_ap_complete(bssid);
+					if(fsub_type == __cpu_to_le16(IEEE80211_STYPE_PROBE_RESP) && verbose)
+					{
+						// TODO improve buffer size and check for overflow
+						char asBuff[128] = {0};
+						cprintf(INFO, "---\nSSID: %s\nManufacter: %s   ModelName: %s   ModelNumber: %s   DeviceName: %s\n",ssid,wps->manufacturer,wps->model_name,wps->model_number,wps->device_name);
+						cprintf(INFO, "UUID: %s   Serial: %s\n",wps->uuid,wps->serial);
+						cprintf(INFO, "State: %s  SelectedRegistar: %d   ResponseType: %s\n",asState[wps->state],wps->selected_registrar,asRespType[wps->response_type]);
+						decode_config_methods(wps->config_methods,asBuff);
+						cprintf(INFO, "Config Method: %s\n",asBuff);
+						cprintf(INFO, "---\n");
+					}
 				}
 	
 			}
@@ -397,6 +412,36 @@ end:
 	return;
 }
 
+void decode_config_methods(uint8_t *config_method, char *asBuff)
+{
+	if(config_method[1] & WPS_CONFIG_USBA)
+		strcat(asBuff,"USBA ");
+	if(config_method[1] & WPS_CONFIG_ETHERNET)
+		strcat(asBuff,"ETHERNET ");
+	if(config_method[1] & WPS_CONFIG_LABEL)
+		strcat(asBuff,"LABEL ");
+	if(config_method[1] & WPS_CONFIG_DISPLAY)
+		strcat(asBuff,"DISPLAY ");
+	if(config_method[1] & WPS_CONFIG_EXT_NFC_TOKEN)
+		strcat(asBuff,"EXT_NFC_TOKEN ");
+	if(config_method[1] & WPS_CONFIG_INT_NFC_TOKEN)
+		strcat(asBuff,"INT_NFC_TOKEN ");
+	if(config_method[1] & WPS_CONFIG_NFC_INTERFACE)
+		strcat(asBuff,"NFC_INTERFACE ");
+	if(config_method[1] & WPS_CONFIG_PUSHBUTTON)
+		strcat(asBuff,"PUSHBUTTON ");
+	if(config_method[0] & WPS_CONFIG_VIRT_DISPLAY)
+		strcat(asBuff,"VIRT_DISPLAY ");
+	if(config_method[0] & WPS_CONFIG_PHYS_DISPLAY)
+		strcat(asBuff,"PHYS_DISPLAY ");
+	if(config_method[0] & WPS_CONFIG_VIRT_PUSHBUTTON)
+		strcat(asBuff,"VIRT_PUSHBUTTON ");
+	if(config_method[0] & WPS_CONFIG_PHYS_PUSHBUTTON)
+		strcat(asBuff,"PHYS_PUSHBUTTON ");
+	if(config_method[0] & WPS_CONFIG_KEYPAD)
+		strcat(asBuff,"KEYPAD ");
+}
+ 
 /* Does what it says */
 void send_probe_request(unsigned char *bssid, char *essid)
 {
@@ -434,6 +479,7 @@ void usage(char *prog)
 	fprintf(stderr, "\t-5, --5ghz                           Use 5GHz 802.11 channels\n");
 	fprintf(stderr, "\t-s, --scan                           Use scan mode\n");
 	fprintf(stderr, "\t-u, --survey                         Use survey mode [default]\n");
+	fprintf(stderr, "\t-v, --verbose                        Show more info on AccessPoint\n");
 	fprintf(stderr, "\t-h, --help                           Show help\n");
 	
 	fprintf(stderr, "\nExample:\n");

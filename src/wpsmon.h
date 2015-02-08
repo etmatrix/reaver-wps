@@ -97,13 +97,14 @@ struct global_variables
 	unsigned char **bssids;
 } wpsmon;
 
-void monitor(char *bssid, int passive, int source, int channel, int mode);
-void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *target, int passive, int mode, int source);
+void monitor(char *bssid, int passive, int source, int channel, int mode,int verbose);
+void parse_wps_settings(const u_char *packet, struct pcap_pkthdr *header, char *target, int passive, int mode, int source,int verbose);
 void send_probe_request(unsigned char *bssid, char *essid);
 int is_dup(unsigned char *bssid);
 void mark_bssid(unsigned char *bssid);
 void free_bssid_list(unsigned char **list, int count);
 void sigalrm_handler(int x);
 void usage(char *prog);
+void decode_config_methods(uint8_t *config_method, char *asBuff);
 
 #endif
